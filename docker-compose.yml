@@ -1,0 +1,31 @@
+version: "3.9"
+services:
+  pipeline:
+    build: .
+    container_name: pipeline
+    environment:
+      - TWITTER_BEARER=${TWITTER_BEARER}
+      - USE_KAFKA=${USE_KAFKA:-false}
+      - KAFKA_BROKER=${KAFKA_BROKER:-redpanda:9092}
+      - KAFKA_TOPIC=${KAFKA_TOPIC:-tweets}
+      - SCHEDULE_CRON=${SCHEDULE_CRON:-05 * * * *}
+    volumes:
+      - ./data:/app/data
+    depends_on:
+      - redpanda
+
+  redpanda:
+    image: docker.redpanda.com/redpandadata/redpanda:latest
+    container_name: redpanda
+    command:
+      - redpanda start
+      - --overprovisioned
+      - --smp=1
+      - --memory=512M
+      - --reserve-memory=0M
+      - --node-id=0
+      - --check=false
+      - --kafka-addr=PLAINTEXT://0.0.0.0:9092
+      - --advertise-kafka-addr=PLAINTEXT://redpanda:9092
+    ports:
+      - "9092:9092"
