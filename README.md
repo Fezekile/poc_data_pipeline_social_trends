@@ -1,32 +1,32 @@
-# POC: Batch + Streaming Data Pipeline (Containerized)
+# POC: Batch + Streaming Data Pipeline
 
-This compact POC ingests **batch data** (UN Sanctions XLSX from FIC) and **streaming data** (Twitter/X API v2 Sampled Stream), 
-processes/cleans the batch data, **stores streaming tweets to Parquet** and/or **publishes to Kafka**, 
-and uses a lightweight **scheduler** to run the batch job daily.
+This compact POC ingests batch data (UN Sanctions XLSX from FIC) and streaming data (Twitter/X /X API v2 Sampled Stream), 
+processes/cleans the batch data, stores streaming tweets to Parquet, and/or publishes to Kafka, 
+and uses a lightweight scheduler to run the batch job daily.
 
 ## Services
-- **pipeline**: Python app running:
-  - A daily-scheduled **batch job** (downloads & cleans sanctions list).
-  - A **streaming job** (Twitter/X sampled stream) with reconnection and error handling.
+- pipeline: Python app running:
+  - A daily-scheduled batch job (downloads & cleans sanctions list).
+  - A streaming job (Twitter/X sampled stream) with reconnection and error handling.
 - **redpanda**: Kafka-compatible broker (single node) for a simple streaming sink.
 
 ## Quick Start
 
-1. **Set your environment variables** (at least the bearer token for X API):
+1. Setting up a tweeter bearer token for X API:
    ```bash
-   export TWITTER_BEARER="YOUR_X_API_BEARER_TOKEN"
+   export TWITTER_BEARER=""
    # Optional Kafka sink
-   export USE_KAFKA="true"            # "true" or "false"
+   export USE_KAFKA="true"            
    export KAFKA_BROKER="redpanda:9092"
    export KAFKA_TOPIC="tweets"
    ```
 
-2. **Build & run** with Docker Compose:
+2. Build & run with Docker Compose:
    ```bash
    docker compose up --build
    ```
 
-3. **Outputs**:
+3. Outputs:
    - Batch parquet: `./data/bronze/sanctions_YYYY-MM-DD.parquet`
    - Cleaned parquet: `./data/silver/sanctions_clean.parquet`
    - Streaming parquet files (rolling): `./data/stream/*.parquet`
@@ -65,7 +65,7 @@ poc-data-pipeline/
 ```
 
 
-## 🗃️ Lightweight Local Warehouse (DuckDB)
+##Local Warehouse (DuckDB)
 This POC includes a local DuckDB database under `./data/warehouse/warehouse.duckdb`:
 
 - Views over parquet are created/updated by the scheduler step `warehouse/load_to_duckdb.py`:
